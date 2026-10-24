@@ -10,6 +10,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
 <link rel="manifest" href="https://augustineiacopelli.github.io/appaday/manifests/124.webmanifest">
 <script src="https://augustineiacopelli.github.io/appaday/save.js" defer></script>
+<script src="https://augustineiacopelli.github.io/appaday/keys.js" data-app="124" data-legacy-key="appaday124-reframe-apikey" data-accent="#D14D72" defer></script>
 <title>Reframe | AppADay 124</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -312,12 +313,9 @@
 <div class="modal-overlay hidden" id="modalOverlay">
   <div class="modal">
     <h2>Settings</h2>
-    <p>Your Anthropic API key stays on this device, in local storage. It is never sent anywhere but Anthropic.</p>
-    <label for="apiKeyInput">API key</label>
-    <input type="password" id="apiKeyInput" placeholder="sk-ant-...">
+    <div id="keyMount"><p>The key manager is loading. If this stays, check your connection and reload.</p></div>
     <div class="modal-actions">
-      <button class="btn-plain" id="modalCancel">Cancel</button>
-      <button class="primary" id="modalSave">Save</button>
+      <button class="primary" id="modalCancel">Close</button>
     </div>
   </div>
 </div>
@@ -326,7 +324,6 @@
 (function(){
 
   var CLAUDE_MODEL = 'claude-sonnet-5';
-  var KEY_STORE = 'appaday124-reframe-apikey';
 
   var els = {
     input: document.getElementById('input'),
@@ -339,31 +336,12 @@
     nextText: document.getElementById('nextText'),
     gearBtn: document.getElementById('gearBtn'),
     modalOverlay: document.getElementById('modalOverlay'),
-    apiKeyInput: document.getElementById('apiKeyInput'),
-    modalCancel: document.getElementById('modalCancel'),
-    modalSave: document.getElementById('modalSave')
+    modalCancel: document.getElementById('modalCancel')
   };
 
-  function getStoredKey(){
-    try{
-      return localStorage.getItem(KEY_STORE) || '';
-    }catch(e){
-      return '';
-    }
-  }
-
-  function setStoredKey(val){
-    try{
-      localStorage.setItem(KEY_STORE, val);
-    }catch(e){
-      /* storage unavailable, continue silently */
-    }
-  }
-
   function openModal(){
-    els.apiKeyInput.value = getStoredKey();
+    if(window.AppKeys) window.AppKeys.mountSettings(document.getElementById('keyMount'));
     els.modalOverlay.classList.remove('hidden');
-    els.apiKeyInput.focus();
   }
 
   function closeModal(){
@@ -374,11 +352,6 @@
   els.modalCancel.addEventListener('click', closeModal);
   els.modalOverlay.addEventListener('click', function(e){
     if(e.target === els.modalOverlay) closeModal();
-  });
-  els.modalSave.addEventListener('click', function(){
-    setStoredKey(els.apiKeyInput.value.trim());
-    closeModal();
-    setStatus('', false);
   });
 
   els.input.addEventListener('input', function(){
@@ -439,16 +412,19 @@
     });
   }
 
-  els.sortBtn.addEventListener('click', function(){
+  els.sortBtn.addEventListener('click', async function(){
     var text = els.input.value.trim();
     if(!text){
       setStatus('Write something first.', true);
       return;
     }
-    var apiKey = getStoredKey();
+    if(!window.AppKeys){
+      setStatus('The key manager did not load. Check your connection and reload.', true);
+      return;
+    }
+    var apiKey = await window.AppKeys.get();
     if(!apiKey){
-      setStatus('Add your API key in Settings first.', true);
-      openModal();
+      setStatus('Add your Claude API key with the gear button to continue.', true);
       return;
     }
 
