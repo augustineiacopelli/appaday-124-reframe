@@ -14,7 +14,7 @@ Health & Wellness (H), AI-powered.
 
 ## Tech
 
-Single self-contained `index.html`. Inline CSS and JavaScript, no build step, no framework. Calls the Anthropic API directly from the browser using `claude-sonnet-5`. Your API key is entered once through the settings gear and stored only in your browser's local storage.
+Single self-contained `index.html`. Inline CSS and JavaScript, no build step, no framework. Calls the Anthropic API directly from the browser using the current Claude Sonnet model. Your API key is entered once through the settings gear and stored only in your browser's local storage.
 
 ## Try it
 
